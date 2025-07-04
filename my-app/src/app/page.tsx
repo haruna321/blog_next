@@ -10,13 +10,23 @@ export default function Home() {
   const [posts, setPosts] = useState<TPostsData[]>([]);
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch("https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts");
-      const data = await res.json();
-      setPosts(data.posts);
-      setIsLoading(false);
-    };
-    fetcher();
-  }, []);
+      try {
+        const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts`,{
+          headers: {
+            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string,
+          },
+        })
+        const { contents } = await res.json()
+        setPosts(contents)
+        setIsLoading(false) // データ取得完了時にローディング状態を解除
+      } catch (error) {
+        console.error('Error:', error)
+        setIsLoading(false) // エラー時もローディング状態を解除
+      }
+    }
+  
+    fetcher()
+  }, [])
 
   if (isLoading) return <p>読み込み中...</p>;
   return (
@@ -29,7 +39,7 @@ export default function Home() {
                 <SDate>{new Date(item.createdAt).toLocaleDateString()}</SDate>
                 <SCategories>
                   {item.categories.map((category) => (
-                    <SCategory key={category}>{category}</SCategory>
+                    <SCategory key={category.id}>{category.name}</SCategory>
                   ))}
                 </SCategories>
               </SHead>

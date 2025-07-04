@@ -14,27 +14,35 @@ const PostDetail = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch(`https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`);
-      const data = await res.json();
-      setPost(data.post);
-      setIsLoading(false);
-    };
-    fetcher();
-  }, [id]);
+      setIsLoading(true)
+      const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts/${id}`,
+        {
+          headers: {
+            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string // APIキーをセット
+          },
+        },
+      )
+      const data = await res.json()
+      setPost(data) 
+      setIsLoading(false)
+    }
+
+    fetcher()
+  }, [id])
 
   if (isLoading) return <p>読み込み中...</p>
   if (!post) return <p className="">記事が見つかりません</p>;
 
   return (
     <SWrapper>
-      <Image className="image" src={post.thumbnailUrl} alt={post.title} width={800} height={400} />
+      <Image className="image" src={post.thumbnail.url} alt={post.title} width={post.thumbnail.width} height={post.thumbnail.height} />
       <SBody>
         <SHead>
           <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
           <SCategories>
-            {post.categories.map((category, i) => {
+            {post.categories?.map((category) => {
               return (
-                <SCategory key={i}>{category}</SCategory>
+                <SCategory key={category.id}>{category.name}</SCategory>
               )
             })}
           </SCategories>
