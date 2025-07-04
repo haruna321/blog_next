@@ -18,15 +18,15 @@ export default function Home() {
         })
         const { contents } = await res.json()
         setPosts(contents)
-        setIsLoading(false) // データ取得完了時にローディング状態を解除
-      } catch (error) {
-        console.error('Error:', error)
-        setIsLoading(false) // エラー時もローディング状態を解除
+        } catch (error) {
+          console.error('Error:', error)
+        } finally {
+          setIsLoading(false) // 成功・失敗に関わらず実行
+        }
       }
-    }
-  
-    fetcher()
-  }, [])
+
+  fetcher()
+}, [])
 
   if (isLoading) return <p>読み込み中...</p>;
   return (

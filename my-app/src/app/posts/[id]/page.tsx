@@ -14,19 +14,24 @@ const PostDetail = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      setIsLoading(true)
-      const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts/${id}`,
-        {
-          headers: {
-            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string // APIキーをセット
+      try {
+        setIsLoading(true)
+        const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts/${id}`,
+          {
+            headers: {
+              'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string
+            },
           },
-        },
-      )
-      const data = await res.json()
-      setPost(data) 
-      setIsLoading(false)
+        )
+        const data = await res.json()
+        setPost(data) 
+      } catch (error) {
+        console.error('Error:', error)
+      } finally {
+        setIsLoading(false) // 成功・失敗に関わらず実行
+      }
     }
-
+  
     fetcher()
   }, [id])
 
