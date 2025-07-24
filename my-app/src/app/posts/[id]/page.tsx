@@ -3,7 +3,7 @@
 import { TPostParams, TPostsData } from "@/types";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+// import Image from "next/image";
 import styled from 'styled-components';
 
 const PostDetail = () => {
@@ -16,15 +16,9 @@ const PostDetail = () => {
     const fetcher = async () => {
       try {
         setIsLoading(true)
-        const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts/${id}`,
-          {
-            headers: {
-              'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string
-            },
-          },
-        )
+        const res = await fetch(`/api/posts/${id}`)
         const data = await res.json()
-        setPost(data) 
+        setPost(data.post) 
       } catch (error) {
         console.error('Error:', error)
       } finally {
@@ -40,14 +34,14 @@ const PostDetail = () => {
 
   return (
     <SWrapper>
-      <Image className="image" src={post.thumbnail.url} alt={post.title} width={post.thumbnail.width} height={post.thumbnail.height} />
+      {/* <Image className="image" src={post.thumbnail.url} alt={post.title} width={post.thumbnail.width} height={post.thumbnail.height} /> */}
       <SBody>
         <SHead>
           <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
           <SCategories>
-            {post.categories?.map((category) => {
+            {post.postCategories?.map((pc) => {
               return (
-                <SCategory key={category.id}>{category.name}</SCategory>
+                <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
               )
             })}
           </SCategories>

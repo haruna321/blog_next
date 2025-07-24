@@ -1,12 +1,19 @@
 export type TPostsData = {
-  id: string
+  id: number
   title: string
   content: string
   createdAt: string
-  categories: { id: string; name: string }[]
-  thumbnail: { url: string; height: number; width: number }
+  thumbnailUrl: string
+  postCategories: { category: TCategoryData }[]
 }
 
 export type TPostParams = {
   id: string;
+}
+
+export type TCategoryData = {
+  id: number
+  name: string
+  createdAt: string
+  updatedAt: string
 }
