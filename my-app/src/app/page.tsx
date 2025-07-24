@@ -11,8 +11,7 @@ export default function Home() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetch(`/api/posts`,{
-        })
+        const res = await fetch(`/api/posts`)
         const { posts } = await res.json()
         setPosts(posts)
         } catch (error) {
@@ -22,8 +21,8 @@ export default function Home() {
         }
       }
 
-  fetcher()
-}, [])
+    fetcher()
+  }, [])
 
   if (isLoading) return <p>読み込み中...</p>;
   return (
@@ -35,16 +34,18 @@ export default function Home() {
               <SHead>
                 <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
                 <SCategories>
-                  {post.postCategories.map((pc) => (
-                    <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
-                  ))}
+                  {post.postCategories?.map((pc) => {
+                    return (
+                      <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
+                    )
+                  })}
                 </SCategories>
               </SHead>
               <STitle>{post.title}</STitle>
               <SText dangerouslySetInnerHTML={{ __html: post.content.slice(0,60) + `...` }} />
               </Link>
             </SPost>
-              )
+          )
         })}
       </SPostsList>
     );
