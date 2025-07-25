@@ -1,3 +1,5 @@
+"use client"
+
 import { TCategoryData } from "@/types"
 import Link from "next/link"
 import { useEffect, useState } from "react"

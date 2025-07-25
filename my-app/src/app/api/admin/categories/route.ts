@@ -26,7 +26,7 @@ interface CreateCategoryRequestBody{
 }
 
 //POST
-export const POST = async (request: NextRequest, context: any) => {
+export const POST = async (request: Request, context: any) => {
   try {
     const body = await request.json()
 

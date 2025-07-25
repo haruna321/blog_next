@@ -10,7 +10,7 @@ export const GET = async (
   const { id } = params
 
   try {
-    const category = await prisma.post.findUnique({
+    const category = await prisma.category.findUnique({
       where: {
         id: parseInt(id),
       },
