@@ -11,13 +11,9 @@ export default function Home() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetch(`https://nlzn4vo9ns.microcms.io/api/v1/posts`,{
-          headers: {
-            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string,
-          },
-        })
-        const { contents } = await res.json()
-        setPosts(contents)
+        const res = await fetch(`/api/posts`)
+        const { posts } = await res.json()
+        setPosts(posts)
         } catch (error) {
           console.error('Error:', error)
         } finally {
@@ -25,29 +21,31 @@ export default function Home() {
         }
       }
 
-  fetcher()
-}, [])
+    fetcher()
+  }, [])
 
   if (isLoading) return <p>読み込み中...</p>;
   return (
       <SPostsList>
-        {posts.map((item) => {
+        {posts.map((post) => {
           return (
-            <SPost key={item.id}>
-              <Link href={`/posts/${item.id}`}>
+            <SPost key={post.id}>
+              <Link href={`/posts/${post.id}`}>
               <SHead>
-                <SDate>{new Date(item.createdAt).toLocaleDateString()}</SDate>
+                <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
                 <SCategories>
-                  {item.categories.map((category) => (
-                    <SCategory key={category.id}>{category.name}</SCategory>
-                  ))}
+                  {post.postCategories?.map((pc) => {
+                    return (
+                      <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
+                    )
+                  })}
                 </SCategories>
               </SHead>
-              <STitle>{item.title}</STitle>
-              <SText dangerouslySetInnerHTML={{ __html: item.content.slice(0,60) + `...` }} />
+              <STitle>{post.title}</STitle>
+              <SText dangerouslySetInnerHTML={{ __html: post.content.slice(0,60) + `...` }} />
               </Link>
             </SPost>
-              )
+          )
         })}
       </SPostsList>
     );
