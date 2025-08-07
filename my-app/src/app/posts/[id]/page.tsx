@@ -1,16 +1,21 @@
 "use client";
 
+import { Header } from "@/app/_components/Header";
 import { TPostParams, TPostsData } from "@/types";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-// import Image from "next/image";
 import styled from 'styled-components';
+import { supabase } from "@/utils/supabase";
 
 const PostDetail = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState<TPostsData | null>(null);
   const { id } = useParams<TPostParams>();
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(
+    null
+  );
 
   useEffect(() => {
     const fetcher = async () => {
@@ -29,27 +34,49 @@ const PostDetail = () => {
     fetcher()
   }, [id])
 
+  // DBに保存しているthumbnailImageKeyを元に、Supabaseから画像のURLを取得する
+  useEffect(() => {
+    if (!post?.thumbnailImageKey) return;
+
+    const fetcher = async () => {
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from("post-thumbnail")
+        .getPublicUrl(post.thumbnailImageKey);
+
+      setThumbnailImageUrl(publicUrl);
+    };
+
+    fetcher();
+  }, [post?.thumbnailImageKey]);
+
   if (isLoading) return <p>読み込み中...</p>
   if (!post) return <p className="">記事が見つかりません</p>;
 
   return (
-    <SWrapper>
-      {/* <Image className="image" src={post.thumbnail.url} alt={post.title} width={post.thumbnail.width} height={post.thumbnail.height} /> */}
-      <SBody>
-        <SHead>
-          <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
-          <SCategories>
-            {post.postCategories?.map((pc) => {
-              return (
-                <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
-              )
-            })}
-          </SCategories>
-        </SHead>
-        <STitle>{post.title}</STitle>
-        <SText dangerouslySetInnerHTML={{ __html: post.content}} />
-      </SBody>
-    </SWrapper>
+    <>
+      <Header />
+      <SWrapper>
+        {thumbnailImageUrl && (
+          <SImage src={thumbnailImageUrl} alt="thumbnail" width={800} height={800} />
+        )}
+        <SBody>
+          <SHead>
+            <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
+            <SCategories>
+              {post.postCategories?.map((pc) => {
+                return (
+                  <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
+                )
+              })}
+            </SCategories>
+          </SHead>
+          <STitle>{post.title}</STitle>
+          <SText dangerouslySetInnerHTML={{ __html: post.content}} />
+        </SBody>
+      </SWrapper>
+    </>
   )
 }
 
@@ -60,6 +87,10 @@ const SWrapper = styled.section`
   width: 100%;
   margin: 50px auto;
 `
+const SImage = styled(Image)`
+  object-fit: cover;
+`
+
 const SBody = styled.div`
   padding: 10px;
 `

@@ -24,7 +24,7 @@ export default function Page(){
       setPosts([...posts])
     }
     fetcher()
-  }, [])
+  }, [token])
   return (
     <SWrapper>
       <SHead>
