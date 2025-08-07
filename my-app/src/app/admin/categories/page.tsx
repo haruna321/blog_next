@@ -1,5 +1,6 @@
 "use client"
 
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { TCategoryData } from "@/types"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -7,15 +8,36 @@ import styled from "styled-components"
 
 export default function Page() {
   const [categories, setCategories] = useState<TCategoryData[]>([])
+  const { token, isLoding } = useSupabaseSession()
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories')
-      const { categories } = await res.json()
-      setCategories(categories)
+      if (!token) return
+
+      const res = await fetch('/api/admin/categories', {
+        headers: {
+          'Authorization': token
+        }
+      })
+      
+      if (res.ok) {
+        const { categories } = await res.json()
+        setCategories(categories || [])
+      } else {
+        // 認証エラーの場合は空配列を設定
+        setCategories([])
+      }
     }
-    fetcher()
-  }, [])
+    
+    if (!isLoding) {
+      fetcher()
+    }
+  }, [token, isLoding])
+
+  // ローディング中または認証されていない場合は何も表示しない
+  if (isLoding || !token) {
+    return <p>読み込み中...</p>
+  }
 
   return (
     <SWrapper>

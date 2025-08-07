@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { authenticateRequest } from '@/utils/auth'
 
 const prisma = new PrismaClient()
 
@@ -7,9 +8,13 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: { id: string } },
 ) => {
-  const { id } = params
+// 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
 
-  try {
+    const { id } = params
+
+    try {
     const post = await prisma.post.findUnique({
       where: {
         id: parseInt(id),
@@ -45,7 +50,11 @@ interface CreatePostRequestBody {
 
 // POSTという命名にすることで、POSTリクエストの時にこの関数が呼ばれる
 export const POST = async (request: NextRequest, context: any) => {
-  try {
+    // 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
+  
+    try {
     // リクエストのbodyを取得
     const body = await request.json()
 
@@ -99,6 +108,10 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: { id: string } }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = params
 
@@ -150,8 +163,11 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: { id: string } }, // ここでリクエストパラメータを受け取る
 ) => {
-  // paramsの中にidが入っているので、それを取り出す
-  const { id } = params
+    // 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
+
+    const { id } = params
 
   try {
     // idを指定して、Postを削除

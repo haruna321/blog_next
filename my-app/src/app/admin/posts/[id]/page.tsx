@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { PostForm } from '../_components/PostForm'
 import { TCategoryData, TPostsData } from '@/types'
 import styled from 'styled-components'
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 
 
 export default function Page() {
@@ -14,16 +15,18 @@ export default function Page() {
   const [categories, setCategories] = useState<TCategoryData[]>([])
   const { id } = useParams()
   const router = useRouter()
+  const { token, isLoding } = useSupabaseSession()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // フォームのデフォルトの動作をキャンセルします。
     e.preventDefault()
 
-    // 記事を作成します。
+    if (!token) return
+
     await fetch(`/api/admin/posts/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': token
       },
       body: JSON.stringify({ title, content, thumbnailImageKey, categories }),
     })
@@ -33,28 +36,48 @@ export default function Page() {
 
   const handleDeletePost = async () => {
     if (!confirm('記事を削除しますか？')) return
+    if (!token) return
 
     await fetch(`/api/admin/posts/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': token
+      }
     })
 
     alert('記事を削除しました。')
-
     router.push('/admin/posts')
   }
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch(`/api/admin/posts/${id}`)
-      const { post }: { post: TPostsData } = await res.json()
-      setTitle(post.title)
-      setContent(post.content)
-      setThumbnailImageKey(post.thumbnailImageKey)
-      setCategories(post.postCategories.map((pc) => pc.category))
+      if (!token) return
+
+      const res = await fetch(`/api/admin/posts/${id}`, {
+        headers: {
+          'Authorization': token
+        }
+      })
+      
+      if (res.ok) {
+        const { post }: { post: TPostsData } = await res.json()
+        if (post) {
+          setTitle(post.title)
+          setContent(post.content)
+          setThumbnailImageKey(post.thumbnailImageKey)
+          setCategories(post.postCategories.map((pc) => pc.category))
+        }
+      }
     }
 
-    fetcher()
-  }, [id])
+    if (!isLoding) {
+      fetcher()
+    }
+  }, [id, token, isLoding])
+
+  if (isLoding || !token) {
+    return <p>読み込み中...</p>>
+  }
 
   return (
     <SWrapper>

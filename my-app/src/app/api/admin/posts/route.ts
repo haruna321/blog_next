@@ -1,18 +1,14 @@
-import { supabase } from '@/utils/supabase'
+import { authenticateRequest } from '@/utils/auth'
+// import { supabase } from '@/utils/supabase'
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
 export const GET = async (request: NextRequest) => {
-  const token = request.headers.get('Authorization') ?? ''
-
-	// supabaseに対してtokenを送る
-  const { error } = await supabase.auth.getUser(token)
-
-  // 送ったtokenが正しくない場合、errorが返却されるので、クライアントにもエラーを返す
-  if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
 
   // tokenが正しい場合、以降が実行される
   try {
@@ -52,6 +48,11 @@ interface CreatePostRequestBody {
 
 // POSTという命名にすることで、POSTリクエストの時にこの関数が呼ばれる
 export const POST = async (request: NextRequest, context: any) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
+  // tokenが正しい場合、以降が実行される
   try {
     // リクエストのbodyを取得
     const body = await request.json()

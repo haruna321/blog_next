@@ -1,3 +1,4 @@
+import { authenticateRequest } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,6 +7,10 @@ const prisma = new PrismaClient()
 
 // GET
 export const GET = async (request: NextRequest) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
   try {
     const categories = await prisma.category.findMany({
       orderBy: {
@@ -26,7 +31,11 @@ interface CreateCategoryRequestBody{
 }
 
 //POST
-export const POST = async (request: Request, context: any) => {
+export const POST = async (request: NextRequest) => {
+// 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
   try {
     const body = await request.json()
 
