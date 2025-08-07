@@ -1,5 +1,6 @@
 "use client"
 
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { TPostsData } from "@/types"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -7,12 +8,20 @@ import styled from "styled-components"
 
 export default function Page(){
   const [posts , setPosts] = useState<TPostsData[]>([])
+  const { token } = useSupabaseSession()
 
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/posts')
+      const res = await fetch('/api/admin/posts', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token, // 👈 Header に token を付与
+        },
+      })
       const { posts } = await res.json()
-      setPosts(posts)
+      setPosts([...posts])
     }
     fetcher()
   }, [])
