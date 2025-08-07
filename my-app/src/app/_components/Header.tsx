@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
             </SButtonWrap>
           ) : (
             <SButtonWrap>
-              <SLink href="/contact">お問い合わせ</SLink>
+              <SLink href="/form">お問い合わせ</SLink>
               <SLink href="/login">ログイン</SLink>
             </SButtonWrap>
           )}
