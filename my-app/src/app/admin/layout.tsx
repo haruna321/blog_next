@@ -3,26 +3,32 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
+import { Header } from "../_components/Header";
+import { useRouteGuard } from "../_hooks/useRouteGuard";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useRouteGuard()
   const pathname = usePathname()
   const isSelected = (href: string) => {
     return pathname.includes(href)
   }
   return (
-    <SWrapper>
-      <SAside>
-        <SLink href="/admin/posts" $selected={isSelected('/admin/posts')}>記事一覧</SLink>
-        <SLink href="/admin/categories" $selected={isSelected('/admin/categories')}>カテゴリー一覧</SLink>
-      </SAside>
-      <SMain>
-        {children}
-      </SMain>
-    </SWrapper>
+    <>
+      <Header />
+      <SWrapper>
+        <SAside>
+          <SLink href="/admin/posts" $selected={isSelected('/admin/posts')}>記事一覧</SLink>
+          <SLink href="/admin/categories" $selected={isSelected('/admin/categories')}>カテゴリー一覧</SLink>
+        </SAside>
+        <SMain>
+          {children}
+        </SMain>
+      </SWrapper>
+    </>
   )
 }
 

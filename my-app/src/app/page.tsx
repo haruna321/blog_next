@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { TPostsData } from "@/types";
 import Link from 'next/link';
 import styled from 'styled-components';
+import { Header } from "./_components/Header";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,28 +27,31 @@ export default function Home() {
 
   if (isLoading) return <p>読み込み中...</p>;
   return (
-      <SPostsList>
-        {posts.map((post) => {
-          return (
-            <SPost key={post.id}>
-              <Link href={`/posts/${post.id}`}>
-              <SHead>
-                <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
-                <SCategories>
-                  {post.postCategories?.map((pc) => {
-                    return (
-                      <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
-                    )
-                  })}
-                </SCategories>
-              </SHead>
-              <STitle>{post.title}</STitle>
-              <SText dangerouslySetInnerHTML={{ __html: post.content.slice(0,60) + `...` }} />
-              </Link>
-            </SPost>
-          )
-        })}
-      </SPostsList>
+      <>
+        <Header />
+        <SPostsList>
+          {posts.map((post) => {
+            return (
+              <SPost key={post.id}>
+                <Link href={`/posts/${post.id}`}>
+                <SHead>
+                  <SDate>{new Date(post.createdAt).toLocaleDateString()}</SDate>
+                  <SCategories>
+                    {post.postCategories?.map((pc) => {
+                      return (
+                        <SCategory key={pc.category.id}>{pc.category.name}</SCategory>
+                      )
+                    })}
+                  </SCategories>
+                </SHead>
+                <STitle>{post.title}</STitle>
+                <SText dangerouslySetInnerHTML={{ __html: post.content.slice(0,60) + `...` }} />
+                </Link>
+              </SPost>
+            )
+          })}
+        </SPostsList>
+      </>
     );
   }
 
