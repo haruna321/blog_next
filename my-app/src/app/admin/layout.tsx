@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import styled from "styled-components";
 import { Header } from "../_components/Header";
 import { useRouteGuard } from "../_hooks/useRouteGuard";
+import { SWRConfig } from "swr";
+import { swrConfig } from "@/utils/swr";
 
 export default function AdminLayout({
   children,
@@ -18,18 +20,22 @@ export default function AdminLayout({
     return pathname.includes(href)
   }
   return (
-    <>
-      <Header />
-      <SWrapper>
-        <SAside>
-          <SLink href="/admin/posts" $selected={isSelected('/admin/posts')}>記事一覧</SLink>
-          <SLink href="/admin/categories" $selected={isSelected('/admin/categories')}>カテゴリー一覧</SLink>
-        </SAside>
-        <SMain>
-          {children}
-        </SMain>
-      </SWrapper>
-    </>
+    <SWRConfig value={swrConfig}>
+      <>
+        <Header />
+        <SWrapper>
+          <SAside>
+            <SLink href="/admin/posts" $selected={isSelected('/admin/posts')}>
+              記事一覧
+            </SLink>
+            <SLink href="/admin/categories" $selected={isSelected('/admin/categories')}>
+              カテゴリー一覧
+            </SLink>
+          </SAside>
+          <SMain>{children}</SMain>
+        </SWrapper>
+      </>
+    </SWRConfig>
   )
 }
 
