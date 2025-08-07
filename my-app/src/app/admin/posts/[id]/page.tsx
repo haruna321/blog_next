@@ -76,7 +76,7 @@ export default function Page() {
   }, [id, token, isLoding])
 
   if (isLoding || !token) {
-    return <p>読み込み中...</p>>
+    return <p>読み込み中...</p>
   }
 
   return (
