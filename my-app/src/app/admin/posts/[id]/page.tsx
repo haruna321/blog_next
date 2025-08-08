@@ -6,6 +6,7 @@ import { PostForm } from '../_components/PostForm'
 import { TCategoryData, TPostsData } from '@/types'
 import styled from 'styled-components'
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
+import { mutate } from 'swr'
 
 
 export default function Page() {
@@ -22,7 +23,7 @@ export default function Page() {
 
     if (!token) return
 
-    await fetch(`/api/admin/posts/${id}`, {
+    await fetch(`/api/admin/posts/${id}`,{
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -31,6 +32,7 @@ export default function Page() {
       body: JSON.stringify({ title, content, thumbnailImageKey, categories }),
     })
 
+    await mutate('/api/admin/posts')
     alert('記事を更新しました。')
   }
 
@@ -38,13 +40,14 @@ export default function Page() {
     if (!confirm('記事を削除しますか？')) return
     if (!token) return
 
-    await fetch(`/api/admin/posts/${id}`, {
+    await fetch(`/api/admin/posts/${id}`,{
       method: 'DELETE',
       headers: {
         'Authorization': token
       }
     })
-
+    
+    await mutate('/api/admin/posts')
     alert('記事を削除しました。')
     router.push('/admin/posts')
   }

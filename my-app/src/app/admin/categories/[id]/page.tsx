@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { CategoryForm } from '../_components/CategoryForm'
 import styled from 'styled-components'
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
+import { mutate } from 'swr'
 
 export default function Page() {
   const [name, setName] = useState('')
@@ -17,7 +18,8 @@ export default function Page() {
 
     if (!token) return
 
-    await fetch(`/api/admin/categories/${id}`, {
+    await fetch(`/api/admin/categories/${id}`,
+      {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -26,6 +28,7 @@ export default function Page() {
       body: JSON.stringify({ name }),
     })
 
+    await mutate('/api/admin/categories')
     alert('カテゴリーを更新しました。')
   }
 
@@ -33,13 +36,15 @@ export default function Page() {
     if (!confirm('カテゴリーを削除しますか？')) return
     if (!token) return
 
-    await fetch(`/api/admin/categories/${id}`, {
+    await fetch(`/api/admin/categories/${id}`,
+      {
       method: 'DELETE',
       headers: {
         'Authorization': token
       }
     })
 
+    await mutate('/api/admin/categories')  
     alert('カテゴリーを削除しました。')
     router.push('/admin/categories')
   }

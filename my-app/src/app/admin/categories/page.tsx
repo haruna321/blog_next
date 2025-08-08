@@ -1,43 +1,44 @@
 "use client"
 
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
-import { TCategoryData } from "@/types"
+// import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
+// import { TCategoryData } from "@/types"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+// import { useEffect, useState } from "react"
 import styled from "styled-components"
+import CategoriesList from "./_components/CategoriesList"
 
 export default function Page() {
-  const [categories, setCategories] = useState<TCategoryData[]>([])
-  const { token, isLoding } = useSupabaseSession()
+  // const [categories, setCategories] = useState<TCategoryData[]>([])
+  // const { token, isLoding } = useSupabaseSession()
 
-  useEffect(() => {
-    const fetcher = async () => {
-      if (!token) return
+  // useEffect(() => {
+  //   const fetcher = async () => {
+  //     if (!token) return
 
-      const res = await fetch('/api/admin/categories', {
-        headers: {
-          'Authorization': token
-        }
-      })
+  //     const res = await fetch('/api/admin/categories', {
+  //       headers: {
+  //         'Authorization': token
+  //       }
+  //     })
       
-      if (res.ok) {
-        const { categories } = await res.json()
-        setCategories(categories || [])
-      } else {
-        // 認証エラーの場合は空配列を設定
-        setCategories([])
-      }
-    }
+  //     if (res.ok) {
+  //       const { categories } = await res.json()
+  //       setCategories(categories || [])
+  //     } else {
+  //       // 認証エラーの場合は空配列を設定
+  //       setCategories([])
+  //     }
+  //   }
     
-    if (!isLoding) {
-      fetcher()
-    }
-  }, [token, isLoding])
+  //   if (!isLoding) {
+  //     fetcher()
+  //   }
+  // }, [token, isLoding])
 
-  // ローディング中または認証されていない場合は何も表示しない
-  if (isLoding || !token) {
-    return <p>読み込み中...</p>
-  }
+  // // ローディング中または認証されていない場合は何も表示しない
+  // if (isLoding || !token) {
+  //   return <p>読み込み中...</p>
+  // }
 
   return (
     <SWrapper>
@@ -45,8 +46,9 @@ export default function Page() {
         <STitle>カテゴリ一覧</STitle>
         <SButton href="/admin/categories/new">新規作成</SButton>
       </SHead>
+      <CategoriesList />
 
-      <SCategoryList>
+      {/* <SCategoryList>
         {categories.map((category) => {
           return (
             <SLink href={`/admin/categories/${category.id}`} key={category.id}>
@@ -54,7 +56,7 @@ export default function Page() {
             </SLink>
           )
         })}
-      </SCategoryList>
+      </SCategoryList> */}
     </SWrapper>
   )
 }
@@ -89,19 +91,19 @@ const STitle = styled.h1`
   color: #333;
 `
 
-const SCategoryList = styled.div`
-  margin-top: 50px;
-`
+// const SCategoryList = styled.div`
+//   margin-top: 50px;
+// `
 
-const SLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #333;
-  text-decoration: none;
-`
-const SCategory = styled.h1`
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-`
+// const SLink = styled(Link)`
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   border-bottom: 1px solid #333;
+//   text-decoration: none;
+// `
+// const SCategory = styled.h1`
+//   font-size: 18px;
+//   font-weight: bold;
+//   color: #333;
+// `

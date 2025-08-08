@@ -1,37 +1,39 @@
 "use client"
 
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
-import { TPostsData } from "@/types"
+// import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
+// import { TPostsData } from "@/types"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+// import { useEffect, useState } from "react"
 import styled from "styled-components"
+import PostsList from "./_components/PostsList"
 
 export default function Page(){
-  const [posts , setPosts] = useState<TPostsData[]>([])
-  const { token } = useSupabaseSession()
+  // const [posts , setPosts] = useState<TPostsData[]>([])
+  // const { token } = useSupabaseSession()
 
-  useEffect(() => {
-    if (!token) return
+  // useEffect(() => {
+  //   if (!token) return
 
-    const fetcher = async () => {
-      const res = await fetch('/api/admin/posts', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token, // 👈 Header に token を付与
-        },
-      })
-      const { posts } = await res.json()
-      setPosts([...posts])
-    }
-    fetcher()
-  }, [token])
+  //   const fetcher = async () => {
+  //     const res = await fetch('/api/admin/posts', {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: token, // 👈 Header に token を付与
+  //       },
+  //     })
+  //     const { posts } = await res.json()
+  //     setPosts([...posts])
+  //   }
+  //   fetcher()
+  // }, [token])
   return (
     <SWrapper>
       <SHead>
         <STitle>記事一覧</STitle>
         <SButton href="/admin/posts/new">新規作成</SButton>
       </SHead>
-      <SPostList>
+      <PostsList />
+      {/* <SPostList>
         {posts.map((post) => {
           return (
             <SLink href={`/admin/posts/${post.id}`} key={post.id}>
@@ -40,7 +42,7 @@ export default function Page(){
             </SLink>
           )
         })}
-      </SPostList>
+      </SPostList> */}
     </SWrapper>
   )
 }
@@ -75,25 +77,25 @@ const STitle = styled.h1`
   color: #333;
 `
 
-const SPostList = styled.div`
-  margin-top: 50px;
-`
+// const SPostList = styled.div`
+//   margin-top: 50px;
+// `
 
-const SLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #333;
-  text-decoration: none;
-`
-const SContentTitle = styled.h1`
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-`
+// const SLink = styled(Link)`
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   border-bottom: 1px solid #333;
+//   text-decoration: none;
+// `
+// const SContentTitle = styled.h1`
+//   font-size: 18px;
+//   font-weight: bold;
+//   color: #333;
+// `
 
-const SDate = styled.p`
-  font-size: 12px;
-  color: #656565;
-`
+// const SDate = styled.p`
+//   font-size: 12px;
+//   color: #656565;
+// `
 
