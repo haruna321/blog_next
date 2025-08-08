@@ -9,16 +9,12 @@ import { mutate } from 'swr'
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 
 export default function Page() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
   const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   const [categories, setCategories] = useState<TCategoryData[]>([])
   const router = useRouter()
   const { token } = useSupabaseSession()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    // フォームのデフォルトの動作をキャンセルします。
-    e.preventDefault()
+  const onSubmit = async ({ title, content }: { title: string; content: string }) => {
     if (!token) return  // トークン未取得時は中断
 
     // 記事を作成します。
@@ -47,15 +43,12 @@ export default function Page() {
       </SHead>
       <PostForm
         mode="new"
-        title={title}
-        setTitle={setTitle}
-        content={content}
-        setContent={setContent}
+        defaultValues={{ title: '', content: '' }}
         thumbnailImageKey={thumbnailImageKey}
         setThumbnailImageKey={setThumbnailImageKey}
         categories={categories}
         setCategories={setCategories}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       />
     </SWrapper>
   )

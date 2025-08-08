@@ -1,33 +1,39 @@
 import React from 'react'
+import { useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
+type CategoryFormValues = { name: string }
 interface Props {
   mode: 'new' | 'edit'
-  name: string
-  setName: (title: string) => void
-  onSubmit: (e: React.FormEvent) => void
+  // name: string
+  // setName: (title: string) => void
+  defaultValues: CategoryFormValues
+  onSubmit: (data: CategoryFormValues) => void
   onDelete?: () => void
 }
 
 export const CategoryForm: React.FC<Props> = ({
   mode,
-  name,
-  setName,
+  defaultValues,
   onSubmit,
   onDelete,
 }) => {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+    useForm<CategoryFormValues>({ defaultValues })
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <SEdit>
         <label htmlFor="title">カテゴリー名</label>
         <input
-          type="text"
           id="title"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register('name', {
+            required: 'カテゴリー名は必須です',
+            maxLength: { value: 30, message: '30文字以内で入力してください' },
+          })}
         />
       </SEdit>
-      <SButton type="submit">
+      {errors.name && <SError>{errors.name.message}</SError>}
+      <SButton type="submit" disabled={isSubmitting}>
         {mode === 'new' ? '作成' : '更新'}
       </SButton>
       {mode === 'edit' && (
@@ -74,4 +80,8 @@ const SDeleteButton = styled.button`
     background: #d32f2f;
     color: #fff;
   }
+`
+
+const SError = styled.p`
+  color: #d32f2f;
 `

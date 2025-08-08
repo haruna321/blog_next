@@ -13,8 +13,7 @@ export default function Page() {
   const router = useRouter()
   const { token, isLoding } = useSupabaseSession()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async ({ name }: { name: string }) => {
 
     if (!token) return
 
@@ -35,16 +34,11 @@ export default function Page() {
   const handleDeletePost = async () => {
     if (!confirm('カテゴリーを削除しますか？')) return
     if (!token) return
-
-    await fetch(`/api/admin/categories/${id}`,
-      {
+    await fetch(`/api/admin/categories/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': token
-      }
+      headers: { Authorization: token },
     })
-
-    await mutate('/api/admin/categories')  
+    await mutate('/api/admin/categories')
     alert('カテゴリーを削除しました。')
     router.push('/admin/categories')
   }
@@ -83,10 +77,10 @@ export default function Page() {
       </SHead>
 
       <CategoryForm
+        key={name}                  
         mode="edit"
-        name={name}
-        setName={setName}
-        onSubmit={handleSubmit}
+        defaultValues={{ name }}
+        onSubmit={onSubmit}
         onDelete={handleDeletePost}
       />
     </SWrapper>

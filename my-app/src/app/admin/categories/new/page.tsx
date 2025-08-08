@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+// import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CategoryForm } from '../_components/CategoryForm'
 import styled from 'styled-components'
@@ -8,28 +8,21 @@ import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 import { mutate } from 'swr'                                            
 
 export default function Page() {
-  const [name, setName] = useState('')
   const router = useRouter()
   const { token } = useSupabaseSession()                             
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    // フォームのデフォルトの動作をキャンセルします。
-    e.preventDefault()
-    if (!token) return                                                 
+  const onSubmit = async ({ name }: { name: string }) => {
+    if (!token) return
     const res = await fetch('/api/admin/categories', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,                                          
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: token 
       },
       body: JSON.stringify({ name }),
     })
-
-    // レスポンスから作成したカテゴリーのIDを取得します。
     const { id } = await res.json()
-
-    await mutate('/api/admin/categories')   // 一覧再検証
-    // 作成したカテゴリーの詳細ページに遷移します。
+    await mutate('/api/admin/categories')
     router.push(`/admin/categories/${id}`)
     alert('カテゴリーを作成しました。')
   }
@@ -42,9 +35,8 @@ export default function Page() {
       </SHead>
       <CategoryForm
         mode="new"
-        name={name}
-        setName={setName}
-        onSubmit={handleSubmit}
+        defaultValues={{ name: '' }} 
+        onSubmit={onSubmit}
       />
     </SWrapper>
   )

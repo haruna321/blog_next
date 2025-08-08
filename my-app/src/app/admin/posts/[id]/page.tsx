@@ -10,17 +10,14 @@ import { mutate } from 'swr'
 
 
 export default function Page() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [formDefaults, setFormDefaults] = useState({ title: '', content: '' })
   const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   const [categories, setCategories] = useState<TCategoryData[]>([])
   const { id } = useParams()
   const router = useRouter()
   const { token, isLoding } = useSupabaseSession()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const onSubmit = async ({ title, content }: { title: string; content: string }) => {
     if (!token) return
 
     await fetch(`/api/admin/posts/${id}`,{
@@ -65,8 +62,7 @@ export default function Page() {
       if (res.ok) {
         const { post }: { post: TPostsData } = await res.json()
         if (post) {
-          setTitle(post.title)
-          setContent(post.content)
+          setFormDefaults({ title: post.title, content: post.content })
           setThumbnailImageKey(post.thumbnailImageKey)
           setCategories(post.postCategories.map((pc) => pc.category))
         }
@@ -89,16 +85,14 @@ export default function Page() {
       </SHead>
       
       <PostForm
+        key={formDefaults.title + formDefaults.content}   // 取得後にdefaultValues反映
         mode="edit"
-        title={title}
-        setTitle={setTitle}
-        content={content}
-        setContent={setContent}
+        defaultValues={formDefaults}
         thumbnailImageKey={thumbnailImageKey}
         setThumbnailImageKey={setThumbnailImageKey}
         categories={categories}
         setCategories={setCategories}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         onDelete={handleDeletePost}
       />
     </SWrapper>

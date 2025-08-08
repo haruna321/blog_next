@@ -6,27 +6,23 @@ import styled from 'styled-components'
 import { supabase } from '@/utils/supabase'
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
+import { useForm } from 'react-hook-form'
 
+type PostFormValues = { title: string; content: string }
 interface Props {
   mode: 'new' | 'edit'
-  title: string
-  setTitle: (title: string) => void
-  content: string
-  setContent: (content: string) => void
+  defaultValues: PostFormValues
   thumbnailImageKey: string
   setThumbnailImageKey: (thumbnailImageKey: string) => void
   categories: TCategoryData[]
   setCategories: (categories: TCategoryData[]) => void
-  onSubmit: (e: React.FormEvent) => void
+  onSubmit: (data: PostFormValues) => void
   onDelete?: () => void
 }
 
 export const PostForm: React.FC<Props> = ({
   mode,
-  title,
-  setTitle,
-  content,
-  setContent,
+  defaultValues,
   thumbnailImageKey,
   setThumbnailImageKey,
   categories,
@@ -34,14 +30,15 @@ export const PostForm: React.FC<Props> = ({
   onSubmit,
   onDelete,
 }) => {
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(
-    null,
-  )
+  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+  useForm<PostFormValues>({ defaultValues })
 
-  const handleImageChange = async (
-    event: ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
-    if (!event.target.files || event.target.files.length == 0) {
+const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(null)
+
+
+const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  if (!event.target.files || event.target.files.length == 0){
+
       // 画像が選択されていないのでreturn
       return
     }
@@ -88,24 +85,19 @@ export const PostForm: React.FC<Props> = ({
   }, [thumbnailImageKey])
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <SEdit>
         <label htmlFor="title">タイトル</label>
-        <input
-          type="text"
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <input id="title" {...register('title', { required: '必須です' })} />
       </SEdit>
+      {errors.title && <SError>{errors.title.message}</SError>}
+
       <SEdit>
         <label htmlFor="content">内容</label>
-        <textarea
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
+        <textarea id="content" {...register('content', { required: '必須です' })} />
       </SEdit>
+      {errors.content && <SError>{errors.content.message}</SError>}
+
       <SEdit>
         <label htmlFor="thumbnailImageKey">サムネイルURL</label>
         <input type="file" id="thumbnailImageKey" onChange={handleImageChange} accept="image/*" />
@@ -120,7 +112,7 @@ export const PostForm: React.FC<Props> = ({
           setSelectedCategories={setCategories}
         />
       </SEdit>
-      <SButton type="submit">
+      <SButton type="submit" disabled={isSubmitting}>
         {mode === 'new' ? '作成' : '更新'}
       </SButton>
       {mode === 'edit' && (
@@ -171,4 +163,7 @@ const SDeleteButton = styled.button`
 
 const SImage = styled(Image)`
   object-fit: contain;
+`
+const SError = styled.p`
+  color: #d32f2f;
 `
