@@ -88,13 +88,21 @@ const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <SEdit>
         <label htmlFor="title">タイトル</label>
-        <input id="title" {...register('title', { required: '必須です' })} />
+        <input 
+          id="title" 
+          {...register('title', { required: '必須です' })}
+          disabled={isSubmitting}
+        />
       </SEdit>
       {errors.title && <SError>{errors.title.message}</SError>}
 
       <SEdit>
         <label htmlFor="content">内容</label>
-        <textarea id="content" {...register('content', { required: '必須です' })} />
+        <textarea 
+          id="content" 
+          {...register('content', { required: '必須です' })}
+          disabled={isSubmitting}
+        />
       </SEdit>
       {errors.content && <SError>{errors.content.message}</SError>}
 
@@ -116,7 +124,13 @@ const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
         {mode === 'new' ? '作成' : '更新'}
       </SButton>
       {mode === 'edit' && (
-        <SDeleteButton type="button" onClick={onDelete}>削除</SDeleteButton>
+        <SDeleteButton 
+        type="button" 
+        onClick={onDelete} 
+        disabled={isSubmitting}
+        >
+          削除
+        </SDeleteButton>
       )}
     </form>
   )

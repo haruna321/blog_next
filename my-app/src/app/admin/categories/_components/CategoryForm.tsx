@@ -30,6 +30,7 @@ export const CategoryForm: React.FC<Props> = ({
             required: 'カテゴリー名は必須です',
             maxLength: { value: 30, message: '30文字以内で入力してください' },
           })}
+          disabled={isSubmitting}
         />
       </SEdit>
       {errors.name && <SError>{errors.name.message}</SError>}
@@ -37,7 +38,7 @@ export const CategoryForm: React.FC<Props> = ({
         {mode === 'new' ? '作成' : '更新'}
       </SButton>
       {mode === 'edit' && (
-        <SDeleteButton type="button" onClick={onDelete}>削除</SDeleteButton>
+        <SDeleteButton type="button" onClick={onDelete} disabled={isSubmitting}>削除</SDeleteButton>
       )}
     </form>
   )
