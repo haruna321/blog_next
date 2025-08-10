@@ -1,23 +1,20 @@
 "use client";
-import useSWR from 'swr';
-import { useMemo } from 'react';
+// import useSWR from 'swr';
+// import { useMemo } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
-import { createAuthenticatedFetcher } from '@/utils/fetcher';
+// import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+// import { createAuthenticatedFetcher } from '@/utils/fetcher';
 import { TPostsData } from '@/types';
+import { useFetch } from '@/app/_hooks/useFetch';
 
 export default function PostsList() {
-  const { token, isLoding } = useSupabaseSession();
-  const fetcher = useMemo(() => createAuthenticatedFetcher(token), [token]);
+  const { data, error, isLoading } = useFetch('/admin/posts');
 
-  const { data, error, isLoading } = useSWR(
-    token ? '/api/admin/posts' : null,
-    fetcher
-  );
-
-  if (isLoding || isLoading) return <p>読み込み中...</p>;
-  if (error) return <p>エラー: {String(error)}</p>;
+  if (isLoading) 
+    return <p>読み込み中...</p>;
+  if (error) 
+    return <p>エラー: {String(error)}</p>;
 
   const posts: TPostsData[] = data?.posts || [];
 

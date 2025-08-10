@@ -7,6 +7,8 @@ import { TCategoryData, TPostsData } from '@/types'
 import styled from 'styled-components'
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 import { mutate } from 'swr'
+// import { createAuthenticatedFetcher } from '@/utils/fetcher'
+import { useFetch } from '@/app/_hooks/useFetch'
 
 
 export default function Page() {
@@ -15,20 +17,28 @@ export default function Page() {
   const [categories, setCategories] = useState<TCategoryData[]>([])
   const { id } = useParams()
   const router = useRouter()
-  const { token, isLoding } = useSupabaseSession()
+  const { token } = useSupabaseSession()
+
+  const { data, error, isLoading } = useFetch(`/admin/posts/${id}`)
+
+  useEffect(() => {
+    const post: TPostsData | undefined = data?.post
+    if (!post) return
+    setFormDefaults({ title: post.title, content: post.content })
+    setThumbnailImageKey(post.thumbnailImageKey)
+    setCategories(post.postCategories.map((pc) => pc.category))
+  }, [data])
 
   const onSubmit = async ({ title, content }: { title: string; content: string }) => {
     if (!token) return
-
-    await fetch(`/api/admin/posts/${id}`,{
+    await fetch(`/api/admin/posts/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': token 
       },
       body: JSON.stringify({ title, content, thumbnailImageKey, categories }),
     })
-
     await mutate('/api/admin/posts')
     alert('記事を更新しました。')
   }
@@ -36,47 +46,21 @@ export default function Page() {
   const handleDeletePost = async () => {
     if (!confirm('記事を削除しますか？')) return
     if (!token) return
-
-    await fetch(`/api/admin/posts/${id}`,{
-      method: 'DELETE',
-      headers: {
-        'Authorization': token
+    await fetch(`/api/admin/posts/${id}`, { 
+      method: 'DELETE', 
+      headers: { 
+        'Authorization': token 
       }
-    })
-    
+     })
     await mutate('/api/admin/posts')
     alert('記事を削除しました。')
     router.push('/admin/posts')
   }
 
-  useEffect(() => {
-    const fetcher = async () => {
-      if (!token) return
-
-      const res = await fetch(`/api/admin/posts/${id}`, {
-        headers: {
-          'Authorization': token
-        }
-      })
-      
-      if (res.ok) {
-        const { post }: { post: TPostsData } = await res.json()
-        if (post) {
-          setFormDefaults({ title: post.title, content: post.content })
-          setThumbnailImageKey(post.thumbnailImageKey)
-          setCategories(post.postCategories.map((pc) => pc.category))
-        }
-      }
-    }
-
-    if (!isLoding) {
-      fetcher()
-    }
-  }, [id, token, isLoding])
-
-  if (isLoding || !token) {
+  if (isLoading || !token) 
     return <p>読み込み中...</p>
-  }
+  if (error) 
+    return <p>エラー: {String(error)}</p>
 
   return (
     <SWrapper>

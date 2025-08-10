@@ -7,23 +7,28 @@ import styled from 'styled-components'
 export default function Page() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `http://localhost:3000/login`,
-      },
-    })
-    if (error) {
-      alert('登録に失敗しました')
-    } else {
-      setEmail('')
-      setPassword('')
-      alert('確認メールを送信しました。')
+    setIsSubmitting(true)
+    try {
+      const { error } = await supabase.auth.signUp({
+        email, 
+        password, 
+        options: { 
+          emailRedirectTo: `http://localhost:3000/login`,
+         },
+      })
+      if (error) {
+        alert('登録に失敗しました')
+      } else {
+        setEmail('')
+        setPassword('')
+        alert('確認メールを送信しました。')
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -54,7 +59,12 @@ export default function Page() {
             value={password}
           />
         </SEdit>
-        <SButton type="submit">登録</SButton>
+        <SButton 
+          type="submit" 
+          disabled={isSubmitting}
+        >
+          登録
+        </SButton>
       </form>
     </SWrapper>
   )

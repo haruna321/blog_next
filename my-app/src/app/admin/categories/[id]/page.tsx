@@ -5,28 +5,34 @@ import { useParams, useRouter } from 'next/navigation'
 import { CategoryForm } from '../_components/CategoryForm'
 import styled from 'styled-components'
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
+// import useSWR, { mutate } from 'swr'
+// import { createAuthenticatedFetcher } from '@/utils/fetcher'
+import { useFetch } from '@/app/_hooks/useFetch'
 import { mutate } from 'swr'
 
 export default function Page() {
   const [name, setName] = useState('')
   const { id } = useParams()
   const router = useRouter()
-  const { token, isLoding } = useSupabaseSession()
+  const { token } = useSupabaseSession()
+
+  const { data, error, isLoading } = useFetch(`/admin/categories/${id}`)
+
+  useEffect(() => {
+    const category = data?.category
+    if (category?.name) setName(category.name)
+  }, [data])
 
   const onSubmit = async ({ name }: { name: string }) => {
-
     if (!token) return
-
-    await fetch(`/api/admin/categories/${id}`,
-      {
+    await fetch(`/api/admin/categories/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': token 
       },
       body: JSON.stringify({ name }),
     })
-
     await mutate('/api/admin/categories')
     alert('カテゴリーを更新しました。')
   }
@@ -34,41 +40,19 @@ export default function Page() {
   const handleDeletePost = async () => {
     if (!confirm('カテゴリーを削除しますか？')) return
     if (!token) return
-    await fetch(`/api/admin/categories/${id}`, {
-      method: 'DELETE',
+    await fetch(`/api/admin/categories/${id}`, { 
+      method: 'DELETE', 
       headers: { Authorization: token },
-    })
+     })
     await mutate('/api/admin/categories')
     alert('カテゴリーを削除しました。')
     router.push('/admin/categories')
   }
 
-  useEffect(() => {
-    const fetcher = async () => {
-      if (!token) return
-
-      const res = await fetch(`/api/admin/categories/${id}`, {
-        headers: {
-          'Authorization': token
-        }
-      })
-      
-      if (res.ok) {
-        const { category } = await res.json()
-        if (category) {
-          setName(category.name)
-        }
-      }
-    }
-
-    if (!isLoding) {
-      fetcher()
-    }
-  }, [id, token, isLoding])
-
-  if (isLoding || !token) {
+  if (isLoading || !token) 
     return <p>読み込み中...</p>
-  }
+  if (error) 
+    return <p>エラー: {String(error)}</p>
 
   return (
     <SWrapper>

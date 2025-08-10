@@ -5,9 +5,10 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import Chip from '@mui/material/Chip'
-import { useEffect } from 'react'
-import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
+// import { useEffect } from 'react'
+// import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 import { TCategoryData } from '@/types'
+import { useFetch } from '@/app/_hooks/useFetch'
 
 interface Props {
   selectedCategories: TCategoryData[]
@@ -18,8 +19,8 @@ export const CategoriesSelect: React.FC<Props> = ({
   selectedCategories,
   setSelectedCategories,
 }) => {
-  const [categories, setCategories] = React.useState<TCategoryData[]>([])
-  const { token, isLoding } = useSupabaseSession()
+  const { data, error, isLoading } = useFetch('/admin/categories');
+  const categories: TCategoryData[] = data?.categories || [];
 
   const handleChange = (value: number[]) => {
     value.forEach((v: number) => {
@@ -35,31 +36,9 @@ export const CategoriesSelect: React.FC<Props> = ({
     })
   }
 
-  useEffect(() => {
-    const fetcher = async () => {
-      if (!token) return
-
-      const res = await fetch('/api/admin/categories', {
-        headers: {
-          'Authorization': token
-        }
-      })
-      
-      if (res.ok) {
-        const { categories } = await res.json()
-        setCategories(categories || [])
-      } else {
-        setCategories([])
-      }
-    }
-
-    if (!isLoding) {
-      fetcher()
-    }
-  }, [token, isLoding])
 
   // ローディング中または認証されていない場合は空のセレクトを表示
-  if (isLoding || !token) {
+  if (isLoading) {
     return (
       <FormControl className="w-full">
         <Select
@@ -72,6 +51,8 @@ export const CategoriesSelect: React.FC<Props> = ({
       </FormControl>
     )
   }
+  if (error) 
+    return <p>エラー: {String(error)}</p>;
 
   return (
     <FormControl className="w-full">

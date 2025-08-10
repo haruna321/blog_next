@@ -8,27 +8,28 @@ import styled from 'styled-components';
 export default function Page() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      alert('ログインに失敗しました')
-    } else {
-      router.replace('/admin/posts')
+    setIsSubmitting(true)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        alert('ログインに失敗しました')
+      } else {
+        router.replace('/admin/posts')
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
     <SWrapper>
       <form onSubmit={handleSubmit}>
-          <SEdit>
+        <SEdit>
           <label htmlFor="email">メールアドレス</label>
           <input
             type="email"
@@ -50,7 +51,12 @@ export default function Page() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </SEdit>
-        <SButton type="submit">ログイン</SButton>
+        <SButton 
+          type="submit" 
+          disabled={isSubmitting}
+        >
+          ログイン
+        </SButton>
       </form>
     </SWrapper>
   )

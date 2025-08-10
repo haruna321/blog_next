@@ -4,55 +4,36 @@ import { Header } from "@/app/_components/Header";
 import { TPostParams, TPostsData } from "@/types";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import styled from 'styled-components';
 import { supabase } from "@/utils/supabase";
+import useSWR from "swr";
 
 const PostDetail = () => {
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [post, setPost] = useState<TPostsData | null>(null);
   const { id } = useParams<TPostParams>();
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(
-    null
+  const { data, error, isLoading } = useSWR(
+    id ? `/api/posts/${id}` : null
   );
 
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        setIsLoading(true)
-        const res = await fetch(`/api/posts/${id}`)
-        const data = await res.json()
-        setPost(data.post) 
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setIsLoading(false) // 成功・失敗に関わらず実行
-      }
-    }
-  
-    fetcher()
-  }, [id])
+  const post: TPostsData | null = data?.post || null;
 
-  // DBに保存しているthumbnailImageKeyを元に、Supabaseから画像のURLを取得する
-  useEffect(() => {
-    if (!post?.thumbnailImageKey) return;
-
-    const fetcher = async () => {
-      const {
-        data: { publicUrl },
-      } = await supabase.storage
+  const { data: thumbnailImageUrl } = useSWR(
+    post?.thumbnailImageKey ? ['post-thumbnail-url', post.thumbnailImageKey] : null,
+    async ([, key]) => {
+      const { data: { publicUrl } } = await supabase.storage
         .from("post-thumbnail")
-        .getPublicUrl(post.thumbnailImageKey);
+        .getPublicUrl(key);
+      return publicUrl;
+    }
+  );
 
-      setThumbnailImageUrl(publicUrl);
-    };
-
-    fetcher();
-  }, [post?.thumbnailImageKey]);
-
-  if (isLoading) return <p>読み込み中...</p>
-  if (!post) return <p className="">記事が見つかりません</p>;
+  if (isLoading) 
+    return <p>読み込み中...</p>;
+  if (error) 
+    return <p>エラー: {String(error)}</p>;
+  if (!post) 
+    return <p>記事が見つかりません</p>;
 
   return (
     <>

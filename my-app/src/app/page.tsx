@@ -1,31 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { TPostsData } from "@/types";
 import Link from 'next/link';
 import styled from 'styled-components';
 import { Header } from "./_components/Header";
+import useSWR from "swr";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [posts, setPosts] = useState<TPostsData[]>([]);
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        const res = await fetch(`/api/posts`)
-        const { posts } = await res.json()
-        setPosts(posts)
-        } catch (error) {
-          console.error('Error:', error)
-        } finally {
-          setIsLoading(false) // 成功・失敗に関わらず実行
-        }
-      }
+  const { data, error, isLoading } = useSWR('/api/posts');
+  if (isLoading) 
+    return <p>読み込み中...</p>;
+  if (error) 
+    return <p>エラー: {String(error)}</p>;
 
-    fetcher()
-  }, [])
+  const posts: TPostsData[] = data?.posts || [];
 
-  if (isLoading) return <p>読み込み中...</p>;
   return (
       <>
         <Header />
