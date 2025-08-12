@@ -1,0 +1,1 @@
+// /admin と /favorites などを保護
