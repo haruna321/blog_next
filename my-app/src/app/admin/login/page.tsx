@@ -15,10 +15,14 @@ export default function Page() {
     event.preventDefault()
     setIsSubmitting(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         alert('ログインに失敗しました')
       } else {
+        const token = data.session?.access_token
+        if (token) {
+          document.cookie = `sb-access-token=${token}; Max-Age=604800; Path=/; SameSite=Lax`
+        }
         router.replace('/admin/posts')
       }
     } finally {

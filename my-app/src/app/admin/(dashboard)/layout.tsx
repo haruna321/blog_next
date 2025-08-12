@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
-import { Header } from "../_components/Header";
-import { useRouteGuard } from "../_hooks/useRouteGuard";
+import { Header } from "../../_components/Header";
+import { useRouteGuard } from "../../_hooks/useRouteGuard";
 import { SWRConfig } from "swr";
 import { swrConfig } from "@/utils/swr";
 

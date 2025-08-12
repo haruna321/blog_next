@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 export const Header: React.FC = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    document.cookie = 'sb-access-token=; Max-Age=0; Path=/; SameSite=Lax'
     window.location.href = '/'
   }
 
@@ -27,7 +28,7 @@ export const Header: React.FC = () => {
           ) : (
             <SButtonWrap>
               <SLink href="/form">お問い合わせ</SLink>
-              <SLink href="/login">ログイン</SLink>
+              <SLink href="/admin/login">ログイン</SLink>
             </SButtonWrap>
           )}
         </div>
