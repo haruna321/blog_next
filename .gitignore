@@ -4,4 +4,4 @@ node_modules
 .env.local
 
 /generated/prisma
-/node_modules/
+node_modules/
