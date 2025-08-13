@@ -12,20 +12,25 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/user/profile` },
     });
+    if (error) alert(error.message);
   };
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         alert("ログインに失敗しました");
         return;
+      }
+      const token = data.session?.access_token;
+      if (token) {
+        document.cookie = `sb-access-token=${token}; Max-Age=604800; Path=/; SameSite=Lax`;
       }
       router.replace("/user/profile");
     } finally {
