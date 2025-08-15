@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { authenticateRequest } from '@/utils/auth'
 
 const prisma = new PrismaClient()
 
@@ -7,9 +8,13 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: { id: string } },
 ) => {
-  const { id } = params
+// 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
 
-  try {
+    const { id } = params
+
+    try {
     const post = await prisma.post.findUnique({
       where: {
         id: parseInt(id),
@@ -40,24 +45,28 @@ interface CreatePostRequestBody {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 // POSTという命名にすることで、POSTリクエストの時にこの関数が呼ばれる
 export const POST = async (request: NextRequest, context: any) => {
-  try {
+    // 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
+  
+    try {
     // リクエストのbodyを取得
     const body = await request.json()
 
-    // bodyの中からtitle, content, categories, thumbnailUrlを取り出す
-    const { title, content, categories, thumbnailUrl }: CreatePostRequestBody = body
+    // bodyの中からtitle, content, categories, thumbnailImageKeyを取り出す
+    const { title, content, categories, thumbnailImageKey }: CreatePostRequestBody = body
 
     // 投稿をDBに生成
     const data = await prisma.post.create({
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 
@@ -91,7 +100,7 @@ interface UpdatePostRequestBody {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 // PUTという命名にすることで、PUTリクエストの時にこの関数が呼ばれる
@@ -99,11 +108,15 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: { id: string } }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = params
 
   // リクエストのbodyを取得
-  const { title, content, categories, thumbnailUrl }: UpdatePostRequestBody = await request.json()
+  const { title, content, categories, thumbnailImageKey }: UpdatePostRequestBody = await request.json()
 
   try {
     // idを指定して、Postを更新
@@ -114,7 +127,7 @@ export const PUT = async (
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 
@@ -150,8 +163,11 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: { id: string } }, // ここでリクエストパラメータを受け取る
 ) => {
-  // paramsの中にidが入っているので、それを取り出す
-  const { id } = params
+    // 認証チェック
+    const authError = await authenticateRequest(request)
+    if (authError) return authError
+
+    const { id } = params
 
   try {
     // idを指定して、Postを削除

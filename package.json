@@ -4,7 +4,10 @@
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.2.0",
     "@prisma/client": "^6.11.1",
-    "styled-components": "^6.1.19"
+    "@supabase/supabase-js": "^2.52.1",
+    "@types/uuid": "^10.0.0",
+    "styled-components": "^6.1.19",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "prisma": "^6.11.1"

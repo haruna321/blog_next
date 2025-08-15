@@ -1,5 +1,8 @@
 "use client";
 
+import { swrConfig } from "@/utils/swr";
+import { SWRConfig } from "swr";
+
 export default function RootLayout({
   children,
 }: {
@@ -7,7 +10,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        <SWRConfig value={swrConfig}>
+          {children}
+        </SWRConfig>
+      </body>
     </html>
   );
 }

@@ -3,7 +3,8 @@ export type TPostsData = {
   title: string
   content: string
   createdAt: string
-  thumbnailUrl: string
+  thumbnailImageKey: string
+  setThumbnailImageKey: (thumbnailImageKey: string) => void
   postCategories: { category: TCategoryData }[]
 }
 

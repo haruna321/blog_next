@@ -1,9 +1,16 @@
+import { authenticateRequest } from '@/utils/auth'
+// import { supabase } from '@/utils/supabase'
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
 export const GET = async (request: NextRequest) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
+  // tokenが正しい場合、以降が実行される
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -36,24 +43,29 @@ interface CreatePostRequestBody {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 // POSTという命名にすることで、POSTリクエストの時にこの関数が呼ばれる
 export const POST = async (request: NextRequest, context: any) => {
+  // 認証チェック
+  const authError = await authenticateRequest(request)
+  if (authError) return authError
+
+  // tokenが正しい場合、以降が実行される
   try {
     // リクエストのbodyを取得
     const body = await request.json()
 
-    // bodyの中からtitle, content, categories, thumbnailUrlを取り出す
-    const { title, content, categories, thumbnailUrl }: CreatePostRequestBody = body
+    // bodyの中からtitle, content, categories, thumbnailImageKeyを取り出す
+    const { title, content, categories, thumbnailImageKey }: CreatePostRequestBody = body
 
     // 投稿をDBに生成
     const data = await prisma.post.create({
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 
